@@ -1,0 +1,165 @@
+<?php
+/** @var Data $helper */
+/** @var Index $index */
+/** @var Escaper $escaper */
+/** @var Renderer $block */
+
+use Magento\Checkout\Block\Cart\Item\Renderer;
+use Magento\Framework\Escaper;
+use Magento\Msrp\Helper\Data;
+use Serwach\OmnibusExtension\Block\Index;
+
+$index = $block->getLayout()->createBlock(Index::class);
+$item = $block->getItem();
+$product = $item->getProduct();
+$isVisibleProduct = $product->isVisibleInSiteVisibility();
+$helper = $this->helper(Data::class);
+$canApplyMsrp = $helper->isShowBeforeOrderConfirm($product) && $helper->isMinimalPriceLessMsrp($product);
+$price = $product->getData('price') ?? "";
+$historicalPrice = $product->getData('historical_price') ?? "";
+$author = $product->getData('author') ?? "";
+$type = $product->getTypeId();
+
+if ($product->getTypeId() === "configurable") {
+    $product = $index->getChildProduct($item);
+    $price = $product->getData('price') ?? "";
+    $historicalPrice = $product->getData('historical_price') ?? "";
+}
+?>
+<tbody class="cart item">
+<tr class="item-info">
+    <td data-th="<?= $block->escapeHtml(__('Item')) ?>" class="col item">
+        <?php if ($block->hasProductUrl()): ?>
+        <a href="<?= $escaper->escapeUrl($block->getProductUrl()) ?>"
+           title="<?= $block->escapeHtml($block->getProductName()) ?>"
+           tabindex="-1"
+           class="product-item-photo">
+            <?php else: ?>
+            <span class="product-item-photo">
+            <?php endif; ?>
+            <?= $block->getImage($block->getProductForThumbnail(), 'cart_page_product_thumbnail')->toHtml() ?>
+            <?php if ($block->hasProductUrl()): ?>
+        </a>
+    <?php else: ?>
+        </span>
+    <?php endif; ?>
+        <div class="product-item-details">
+            <strong class="product-item-name">
+                <?php $name = $block->getProductName() ?>
+                <?php if (str_contains($name, "papierowe")): ?>
+                    <?php $name = str_replace("papierowe","", $name); ?>
+                <?php elseif(str_contains($name, "cyfrowe")): ?>
+                    <?php $name = str_replace("cyfrowe","", $name); ?>
+                <?php endif; ?>
+                <?php if ($block->hasProductUrl()): ?>
+                    <a href="<?= $escaper->escapeUrl($block->getProductUrl()) ?>"><?= $block->escapeHtml($name) ?></a>
+                <?php else: ?>
+                    <?= $block->escapeHtml($name) ?>
+                <?php endif; ?>
+            </strong>
+            <br>
+            <?php if($author && $author !== "zbiorowy"): ?>
+                <div class="product attribute author"><i><?= $author ?></i></div>
+            <?php endif; ?>
+            <?php if ($options = $block->getOptionList()): ?>
+                <dl class="item-options">
+                    <?php foreach ($options as $option): ?>
+                        <?php $formatedOptionValue = $block->getFormatedOptionValue($option) ?>
+                        <dt><?= $block->escapeHtml($option['label']) ?></dt>
+                        <dd>
+                            <?php if (isset($formatedOptionValue['full_view'])): ?>
+                                <?= $block->escapeHtml($formatedOptionValue['full_view'], ['span', 'a']) ?>
+                            <?php else: ?>
+                                <?= $block->escapeHtml($formatedOptionValue['value'], ['span', 'a']) ?>
+                            <?php endif; ?>
+                        </dd>
+                    <?php endforeach; ?>
+                </dl>
+            <?php endif; ?>
+            <?php if ($type === 'simple'): ?>
+                <span><?= /* @noEscape */ "Wydanie papierowe"; ?></span>
+            <?php elseif ($type === 'downloadable' || $type === 'virtual'): ?>
+                <span><?= /* @noEscape */ "Wydanie cyfrowe"; ?></span>
+            <?php endif; ?>
+            <?php if ($product->getData('special_price') && $product->getData('special_price') < $price): ?>
+                <div class="serwach-price">
+                    <s><?= $escaper->escapeHtml($index->getPrice($product->getData('price'))) ?></s>
+                    <?= /* @noEscape */ __("regular price"); ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($historicalPrice && $price < $historicalPrice): ?>
+                <div class="serwach-price">
+                    <s><?= $escaper->escapeHtml($index->getPrice($historicalPrice)) ?></s>
+                    <?= $escaper->escapeHtml(__('the lowest price in the last 30 days')) ?>
+                </div>
+            <?php endif; ?>
+            <?php if ($messages = $block->getMessages()): ?>
+                <?php foreach ($messages as $message): ?>
+                    <div class="cart item message <?= $escaper->escapeHtmlAttr($message['type']) ?>">
+                        <div><?= $block->escapeHtml($message['text']) ?></div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <?php $addInfoBlock = $block->getProductAdditionalInformationBlock(); ?>
+            <?php if ($addInfoBlock): ?>
+                <?= $addInfoBlock->setItem($item)->toHtml() ?>
+            <?php endif; ?>
+        </div>
+    </td>
+    <td class="col qty" data-th="<?= $block->escapeHtml(__('Qty')) ?>">
+        <div class="field qty">
+            <div class="control qty">
+                <label for="cart-<?= $escaper->escapeHtmlAttr($item->getId()) ?>-qty">
+                    <span class="label"><?= $escaper->escapeHtml(__('Qty')) ?></span>
+                    <input id="cart-<?= $escaper->escapeHtmlAttr($item->getId()) ?>-qty"
+                           name="cart[<?= $escaper->escapeHtmlAttr($item->getId()) ?>][qty]"
+                           data-cart-item-id="<?= $escaper->escapeHtmlAttr($item->getSku()) ?>"
+                           value="<?= $escaper->escapeHtmlAttr($block->getQty()) ?>"
+                           type="number"
+                           min="0"
+                           size="4"
+                           step="any"
+                           title="<?= $escaper->escapeHtmlAttr(__('Qty')) ?>"
+                           class="input-text qty"
+                           data-validate="{required:true,'validate-greater-than-zero':true}"
+                           data-item-qty="<?= $escaper->escapeHtmlAttr($block->getQty()) ?>"
+                           data-role="cart-item-qty"/>
+                </label>
+            </div>
+        </div>
+    </td>
+    <?php if ($canApplyMsrp): ?>
+        <td class="col msrp" data-th="<?= $block->escapeHtml(__('Price')) ?>">
+                <span class="pricing msrp">
+                    <span
+                        class="msrp notice"><?= $block->escapeHtml(__('See price before order confirmation.')) ?></span>
+                    <?php $helpLinkId = 'cart-msrp-help-' . $item->getId(); ?>
+                    <a href="#" class="action help map"
+                       id="<?= ($escaper->escapeHtmlAttr($helpLinkId)) ?>"
+                       data-mage-init='{"addToCart":{
+                                            "origin": "info",
+                                            "helpLinkId": "#<?= $block->escapeJs($block->escapeHtml($helpLinkId)) ?>",
+                                            "productName": "<?= $block->escapeJs($block->escapeHtml($product->getName())) ?>",
+                                            "showAddToCart": false
+                                            }
+                                        }'
+                    >
+                        <span><?= $block->escapeHtml(__("What's this?")) ?></span>
+                    </a>
+                </span>
+        </td>
+    <?php else: ?>
+        <td class="col price" data-th="<?= $block->escapeHtml(__('Price')) ?>">
+            <?= $block->getUnitPriceHtml($item) ?>
+        </td>
+    <?php endif; ?>
+</tr>
+<tr class="item-actions">
+    <td colspan="4">
+        <div class="actions-toolbar">
+            <?= /* @noEscape */
+            $block->getActions($item) ?>
+        </div>
+    </td>
+</tr>
+</tbody>

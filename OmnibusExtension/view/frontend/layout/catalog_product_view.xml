@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Serwach_OmnibusExtension::css/css-module.css"/>
+    </head>
+    <body>
+        <referenceBlock name="product.info.form.content">
+            <block class="Serwach\OmnibusExtension\Block\Index" as="extra_options" before="product.info.addtocart"
+                   name="serwach_omnibus_template" template="Serwach_OmnibusExtension::product/view/omnibus.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="product.info.price">
+            <block class="Serwach\OmnibusExtension\Block\Index" as="product_type" before="-"
+                   name="serwach_product_type" template="Serwach_OmnibusExtension::product/view/type.phtml"/>
+        </referenceBlock>
+    </body>
+</page>

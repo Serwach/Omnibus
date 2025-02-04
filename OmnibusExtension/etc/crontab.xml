@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="serwach_omnibusdirectiv_cleanup_historical_prices"
+             instance="Serwach\OmnibusExtension\Cron\CleanupHistoricalPrices" method="execute">
+            <schedule>0 0 * * *</schedule>
+        </job>
+        <job name="serwach_omnibusdirectiv_cleanup_special_prices"
+             instance="Serwach\OmnibusExtension\Cron\CleanupSpecialPrices" method="execute">
+            <schedule>0 0 * * *</schedule>
+        </job>
+        <job name="serwach_omnibusdirectiv_set_historical_attributes"
+             instance="Serwach\OmnibusExtension\Cron\SetHistoricalAttributes" method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
+    </group>
+</config>

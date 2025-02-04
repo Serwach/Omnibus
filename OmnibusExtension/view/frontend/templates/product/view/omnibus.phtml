@@ -1,0 +1,27 @@
+<?php
+/** @var Template $block */
+/** @var Index $index */
+/** @var Escaper $escaper */
+
+use Magento\Framework\Escaper;
+use Serwach\OmnibusExtension\Block\Index;
+use Magento\Framework\View\Element\Template;
+
+$index = $block->getLayout()->createBlock(Index::class);
+
+$price = $index->getProduct()->getData('price') ?? "";
+$historicalPrice = $index->getProduct()->getData('historical_price') ?? "";
+$specialPrice = $index->getProduct()->getData('special_price') ?? "";
+$type = $index->getProduct()->getTypeId() ?? "";
+?>
+<?php if ($historicalPrice && $specialPrice): ?>
+    <div class="serwach-price">
+        <s><?= $escaper->escapeHtml($index->getPrice($price)) ?></s>
+        <?= /* @noEscape */ __("regular price"); ?>
+    </div>
+    <div class="serwach-price">
+        <s><?= $escaper->escapeHtml($index->getPrice($historicalPrice)) ?></s>
+        <?= $escaper->escapeHtml(__('the lowest price in the last 30 days')) ?>
+    </div>
+<?php endif; ?>
+<br/>

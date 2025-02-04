@@ -1,0 +1,16 @@
+<?php
+/** @var Template $block */
+/** @var Index $index */
+
+use Serwach\OmnibusExtension\Block\Index;
+use Magento\Framework\View\Element\Template;
+
+$index = $block->getLayout()->createBlock(Index::class);
+$type = $index->getProduct()->getTypeId() ?? "";
+?>
+<?php if ($type === 'downloadable' || $type === 'virtual'): ?>
+    <span><?= /* @noEscape */ "Wydanie cyfrowe"; ?></span>
+<?php elseif ($type === 'simple'): ?>
+    <span><?= /* @noEscape */ "Wydanie papierowe"; ?></span>
+<?php endif; ?>
+<br><br>
