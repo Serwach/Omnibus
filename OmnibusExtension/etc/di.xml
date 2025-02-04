@@ -7,16 +7,4 @@
     <type name="\Magento\Catalog\Pricing\Render\FinalPriceBox">
         <plugin name="change-final-price-template" type="Serwach\OmnibusExtension\Plugin\FinalPricePlugin"/>
     </type>
-    <type name="Magento\Framework\Console\CommandList">
-        <arguments>
-            <argument name="commands" xsi:type="array">
-                <item name="init_historical_price" xsi:type="object">
-                    Serwach\OmnibusExtension\Model\InitHistoricalPrice
-                </item>
-                <item name="set_historical_price" xsi:type="object">
-                    Serwach\OmnibusExtension\Model\SetHistoricalAttributes
-                </item>
-            </argument>
-        </arguments>
-    </type>
 </config>

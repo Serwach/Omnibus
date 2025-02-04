@@ -10,9 +10,5 @@
              instance="Serwach\OmnibusExtension\Cron\CleanupSpecialPrices" method="execute">
             <schedule>0 0 * * *</schedule>
         </job>
-        <job name="serwach_omnibusdirectiv_set_historical_attributes"
-             instance="Serwach\OmnibusExtension\Cron\SetHistoricalAttributes" method="execute">
-            <schedule>* * * * *</schedule>
-        </job>
     </group>
 </config>
